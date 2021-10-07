@@ -1,17 +1,27 @@
 import cookieParser from 'cookie-parser';
 import express from 'express';
 import methodOverride from 'method-override';
+import cors from 'cors';
 import webpack from 'webpack';
 import webpackDevMiddleware from 'webpack-dev-middleware';
 import webpackHotMiddleware from 'webpack-hot-middleware';
-
 import webpackConfig from './webpack_conf/webpack.dev.js';
 import bindRoutes from './routes.mjs';
 
+const FRONTEND_URL = process.env.FRONTEND_URL || 'http://localhost:3000';
+
 // Initialise Express instance
 const app = express();
+
+// Set CORS headers
+app.use(cors({
+  credentials: true,
+  origin: FRONTEND_URL,
+}));
+
 // Set the Express view engine to expect EJS templates
 app.set('view engine', 'ejs');
+
 // Bind cookie parser middleware to parse cookies in requests
 app.use(cookieParser());
 // Bind Express middleware to parse request bodies for POST requests
