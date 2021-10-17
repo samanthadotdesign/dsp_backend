@@ -1,7 +1,17 @@
 module.exports = {
   up: async (queryInterface, Sequelize) => {
-    // Leave 'users' table as empty
-    ƒ;
+    // Add one user to the users table
+    const usersList = [
+      {
+        name: 'Samantha',
+        email: 'hey@samantha.com',
+        password: '$2b$10$vKxS0/rnlNKBybIE5uAQ5eUhFeLaJk1.GySSTb0Z3Xc73qL7Yhn6G',
+        created_at: new Date(),
+        updated_at: new Date(),
+      },
+    ];
+    await queryInterface.bulkInsert('users', usersList);
+
     // Sections
     const sectionsList = [
       {
