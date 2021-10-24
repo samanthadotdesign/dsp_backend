@@ -59,7 +59,7 @@ export default function initDashboardController(db) {
   // Get dashboard data
   // Use async/await here to getDashboardData
   const index = async (req, res) => {
-    const { userId } = req.cookies;
+    const { id: userId } = req.params;
     let dashboardData;
     if (userId) {
       dashboardData = await getDashboardData(db, userId);

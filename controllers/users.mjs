@@ -15,7 +15,6 @@ export default function initUserController(db) {
   // Add a new user that signs up
   const signup = async (req, res) => {
     const { name, email, password: userPassword } = req.body;
-
     try {
       const hashedPassword = await bcrypt.hash(userPassword, 10);
       const newUser = await db.User.create({
@@ -47,6 +46,7 @@ export default function initUserController(db) {
       res.sendStatus(200);
     } catch (error) {
       console.log(error);
+      console.log('**** ERROR SIGNING UP ****');
       res.sendStatus(401);
     }
   };
@@ -69,7 +69,8 @@ export default function initUserController(db) {
         }
         res.cookie('loggedIn', true);
         res.cookie('userId', user.id);
-        res.sendStatus(200);
+        res.send({ userId: user.id });
+        // res.status(200).send({ userId: user.id });
       } else {
         // If user doesn't exist
         console.log('error logging in', error);
