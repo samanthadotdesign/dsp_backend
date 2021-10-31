@@ -73,8 +73,8 @@ export default function initDashboardController(db) {
 
   // Send array of category ids as response, from sectionId
   const categories = async (req, res) => {
-    const { id } = req.params;
-    const { userId } = req.cookies;
+    const { sectionId } = req.params;
+    // const { userId } = req.cookies;
 
     try {
       const categoriesInSection = await db.Category.findAll({ where: { sectionId: id } });
@@ -105,7 +105,8 @@ export default function initDashboardController(db) {
   // Send array of resource objects as response
   const resources = async (req, res) => {
     // We still need the userId to get the specific user's added resources
-    const { userId } = req.cookies;
+    // const { userId } = req.cookies;
+    const { skillId, userId } = req.params;
 
     try {
       const user = await db.User.findByPk(userId);

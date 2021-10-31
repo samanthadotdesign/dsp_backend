@@ -3,12 +3,12 @@ import bcrypt from 'bcrypt';
 export default function initUserController(db) {
   // Checks if user has been logged in on page load
   const index = (req, res) => {
-    const { loggedIn } = req.cookies;
+    const { loggedIn, userId } = req.cookies;
     if (loggedIn) {
-      res.send(true);
+      res.send({ loggedIn, userId });
     }
     else {
-      res.send(false);
+      res.send({ loggedIn });
     }
   };
 
@@ -69,7 +69,7 @@ export default function initUserController(db) {
         }
         res.cookie('loggedIn', true);
         res.cookie('userId', user.id);
-        res.send({ userId: user.id });
+        res.send({ userId: user.id, status: 'OK' });
         // res.status(200).send({ userId: user.id });
       } else {
         // If user doesn't exist
