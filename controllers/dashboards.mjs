@@ -1,5 +1,5 @@
 /**
- * Get dashboard data
+ * Get dashboard data for the particular user
  * @param db – Sequelize/Postgress database
  * @returns object { sections, ... }
  */
@@ -73,11 +73,12 @@ export default function initDashboardController(db) {
 
   // Send array of category ids as response, from sectionId
   const categories = async (req, res) => {
-    const { sectionId } = req.params;
+    const { sectionId, userId } = req.params;
     // const { userId } = req.cookies;
-
+    console.log('********** SECTION ID INSIDE DASHBOARD **************', sectionId);
+    console.log('************* userId inside dashboard ***********', userId);
     try {
-      const categoriesInSection = await db.Category.findAll({ where: { sectionId: id } });
+      const categoriesInSection = await db.Category.findAll({ where: { sectionId } });
       const categoryIds = [];
       for (let i = 0; i < categoriesInSection.length; i += 1) {
         categoryIds.push(categoriesInSection[i].id);
