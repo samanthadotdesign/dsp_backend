@@ -12,17 +12,22 @@ const getDashboardData = async (db, userId) => {
     const resources = await db.Resource.findAll();
 
     let skillsCompleted;
+    const skillIdsCompleted = [];
+
     let categoriesCompleted;
-    // user_skills
-    // db.Skill --> query the 'skills table'
-    // Include: find the skills with the userId
-    if (userId) {
+    const categoryIdsCompleted = [];
+
+    if (userId !== 0) {
       skillsCompleted = await db.UserSkill.findAll({
         where: {
           id: userId,
           completed: true,
         },
       });
+
+      for (let i = 0; i < skillsCompleted.length; i += 1) {
+        skillIdsCompleted.push(skillsCompleted[i].id);
+      }
 
       // user_categories
       // db.Category -> query the categories table
@@ -36,6 +41,12 @@ const getDashboardData = async (db, userId) => {
           },
         },
       });
+
+      // categoriesCompleted = [ { id: ... userId ... category_id: ... createdAt, updatedAt}, {} ]
+      // categoryIdsCompleted = [1,2,3]
+      for (let i = 0; i < categoriesCompleted.length; i += 1) {
+        categoryIdsCompleted.push(categoriesCompleted[i].id);
+      }
     } else {
       skillsCompleted = {};
       categoriesCompleted = {};
@@ -46,8 +57,8 @@ const getDashboardData = async (db, userId) => {
       categories,
       skills,
       resources,
-      skillsCompleted,
-      categoriesCompleted,
+      skillIdsCompleted,
+      categoryIdsCompleted,
     };
   } catch (error) {
     console.log('Error getting dashboard data', error);
@@ -69,38 +80,6 @@ export default function initDashboardController(db) {
     }
     // Object that holds all the dashboard data
     res.send(dashboardData);
-  };
-
-  // Send array of category ids as response, from sectionId
-  const categories = async (req, res) => {
-    const { sectionId, userId } = req.params;
-    // const { userId } = req.cookies;
-    console.log('********** SECTION ID INSIDE DASHBOARD **************', sectionId);
-    console.log('************* userId inside dashboard ***********', userId);
-    try {
-      const categoriesInSection = await db.Category.findAll({ where: { sectionId } });
-      const categoryIds = [];
-      for (let i = 0; i < categoriesInSection.length; i += 1) {
-        categoryIds.push(categoriesInSection[i].id);
-      }
-
-      const skillsCompleted = await db.UserSkill.findAll({
-        where: {
-          userId,
-          completed: true,
-        },
-      });
-
-      const skillIdsCompleted = [];
-      for (let i = 0; i < skillsCompleted.length; i += 1) {
-        skillIdsCompleted.push(skillsCompleted[i].skillId);
-      }
-
-      res.send({ categoryIds, skillIdsCompleted });
-    } catch (error) {
-      console.log(error);
-      res.sendStatus(200);
-    }
   };
 
   // Send array of resource objects as response
@@ -148,5 +127,5 @@ export default function initDashboardController(db) {
     }
   };
 
-  return { index, categories, resources };
+  return { index, resources };
 }

@@ -17,7 +17,6 @@ export default function bindRoutes(app) {
   const ResourceController = initResourceController(db);
 
   app.get('/data/:id', DashboardController.index);
-  app.get('/section/:sectionId/:/userId', DashboardController.categories);
   app.get('/resources/:skillId/:userId', DashboardController.resources);
   app.put('/skill', SkillController.index);
 
