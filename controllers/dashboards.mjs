@@ -1,4 +1,34 @@
 /**
+ * Organizes resources into
+ * @param resources is an array of objects
+ * [ {id...resourceName ... resourceLink}, ...]
+ * @returns object organized by skill
+ * /* object = {  1: [ {name: ..., link: ...}. {name..., link ...}], ...}
+ * */
+const organizeResourcesInSkill = (resources) => {
+  const result = {};
+  for (let i = 0; i < resources.length; i += 1) {
+    // Check if the skillId key exists in the object, add to array
+    if (result[resources[i].skillId]) {
+      result[resources[i].skillId].push({
+        name: resources[i].resourceName,
+        link: resources[i].resourceLink,
+        // favicon: resources[i].favicon,
+      });
+    }
+    // If the key doesn't exist, create an array + create the first object inside
+    else {
+      result[resources[i].skillId] = [{
+        name: resources[i].resourceName,
+        link: resources[i].resourceLink,
+        // favicon: resourcesInSkill[i].favicon,
+      }];
+    }
+  }
+  return result;
+};
+
+/**
  * Get dashboard data for the particular user
  * @param db – Sequelize/Postgress database
  * @returns object { sections, ... }
@@ -9,7 +39,6 @@ const getDashboardData = async (db, userId) => {
     const sections = await db.Section.findAll();
     const categories = await db.Category.findAll();
     const skills = await db.Skill.findAll();
-    const resources = await db.Resource.findAll();
 
     let skillsCompleted;
     const skillIdsCompleted = [];
@@ -17,7 +46,13 @@ const getDashboardData = async (db, userId) => {
     let categoriesCompleted;
     const categoryIdsCompleted = [];
 
-    if (userId !== 0) {
+    let resourcesInSkillObject = {};
+
+    console.log('***** USER ID ****');
+    console.log(userId);
+
+    if (userId != 0) {
+      // Get completed skillIds
       skillsCompleted = await db.UserSkill.findAll({
         where: {
           id: userId,
@@ -29,12 +64,11 @@ const getDashboardData = async (db, userId) => {
         skillIdsCompleted.push(skillsCompleted[i].id);
       }
 
-      // user_categories
-      // db.Category -> query the categories table
-      // Include: find the categories with the userId
+      // Get completed categoryIds
+      // categoriesCompleted = [ { id: ... userId ... category_id: ... createdAt, updatedAt}, {} ]
+      // categoryIdsCompleted = [1,2,3]
       categoriesCompleted = await db.Category.findAll({
         include: {
-        // From the users table, find the PK
           model: db.User,
           where: {
             id: userId,
@@ -42,12 +76,23 @@ const getDashboardData = async (db, userId) => {
         },
       });
 
-      // categoriesCompleted = [ { id: ... userId ... category_id: ... createdAt, updatedAt}, {} ]
-      // categoryIdsCompleted = [1,2,3]
       for (let i = 0; i < categoriesCompleted.length; i += 1) {
         categoryIdsCompleted.push(categoriesCompleted[i].id);
       }
+
+      const user = await db.User.findByPk(userId);
+      const resourcesInSkill = await user.getResources();
+
+      // Create an object where the keys are the skillId for easy retrieval
+      resourcesInSkillObject = organizeResourcesInSkill(resourcesInSkill);
     } else {
+      // When user is not logged in, get the default skill values
+      const defaultResources = await db.Resource.findAll({
+        where: {
+          isDefault: true,
+        },
+      });
+      resourcesInSkillObject = organizeResourcesInSkill(defaultResources);
       skillsCompleted = {};
       categoriesCompleted = {};
     }
@@ -56,7 +101,7 @@ const getDashboardData = async (db, userId) => {
       sections,
       categories,
       skills,
-      resources,
+      resources: resourcesInSkillObject,
       skillIdsCompleted,
       categoryIdsCompleted,
     };
@@ -72,60 +117,17 @@ export default function initDashboardController(db) {
   const index = async (req, res) => {
     const { id: userId } = req.params;
     let dashboardData;
+
+    // If user is logged in
     if (userId) {
       dashboardData = await getDashboardData(db, userId);
     }
     else {
-      dashboardData = await getDashboardData(db);
+      dashboardData = await getDashboardData(db, 0);
     }
     // Object that holds all the dashboard data
     res.send(dashboardData);
   };
 
-  // Send array of resource objects as response
-  const resources = async (req, res) => {
-    // We still need the userId to get the specific user's added resources
-    // const { userId } = req.cookies;
-    const { skillId, userId } = req.params;
-
-    try {
-      const user = await db.User.findByPk(userId);
-      const resourcesInSkill = await user.getResources();
-      console.log('******************************************************************************************');
-      console.log(resourcesInSkill);
-      // resourcesInSkill = [ {id...resourceName ... resourceLink}, ...]
-
-      // Create an object where the keys are the skillId for easy retrieval
-      const result = {};
-      for (let i = 0; i < resourcesInSkill.length; i += 1) {
-        // Check if the skillId key exists in the object, add to array
-        if (result[resourcesInSkill[i].skillId]) {
-          result[resourcesInSkill[i].skillId].push({
-            name: resourcesInSkill[i].resourceName,
-            link: resourcesInSkill[i].resourceLink,
-            // favicon: resourcesInSkill[i].favicon,
-          });
-        }
-        // If the key doesn't exist, create an array + create the first object inside
-        else {
-          result[resourcesInSkill[i].skillId] = [{
-            name: resourcesInSkill[i].resourceName,
-            link: resourcesInSkill[i].resourceLink,
-            // favicon: resourcesInSkill[i].favicon,
-          }];
-        }
-      }
-      /* object = {
-        1: [ {name: ..., link: ...}. {name..., link ...}],
-        2: [],
-        3: [] ...
-      } */
-      res.send(result);
-    } catch (error) {
-      console.log(error);
-      res.sendStatus(200);
-    }
-  };
-
-  return { index, resources };
+  return { index };
 }
