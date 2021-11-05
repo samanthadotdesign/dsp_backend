@@ -86,6 +86,6 @@ export default function initUserController(db) {
   };
 
   return {
-    signup, login, logout, index,
+    signup, login, logout,
   };
 }
