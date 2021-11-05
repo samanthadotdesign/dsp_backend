@@ -1,17 +1,6 @@
 import bcrypt from 'bcrypt';
 
 export default function initUserController(db) {
-  // Checks if user has been logged in on page load
-  const index = (req, res) => {
-    const { loggedIn, userId } = req.cookies;
-    if (loggedIn) {
-      res.send({ loggedIn, userId });
-    }
-    else {
-      res.send({ loggedIn });
-    }
-  };
-
   // Add a new user that signs up
   const signup = async (req, res) => {
     const { name, email, password: userPassword } = req.body;
@@ -67,10 +56,12 @@ export default function initUserController(db) {
           console.log('We didn\'t recognize your password. Please try again!');
           res.sendStatus(403);
         }
-        res.cookie('loggedIn', true);
-        res.cookie('userId', user.id);
-        res.send({ userId: user.id, status: 'OK' });
-        // res.status(200).send({ userId: user.id });
+        // Instead of res.cookie, we are sending cookies inside this response
+        res.send({
+          userId: user.id,
+          status: 'OK',
+          loggedIn: true,
+        });
       } else {
         // If user doesn't exist
         console.log('error logging in', error);

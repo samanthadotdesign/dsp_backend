@@ -23,7 +23,6 @@ export default function bindRoutes(app) {
   app.post('/signup', UserController.signup);
   app.post('/login', UserController.login);
   app.post('/logout', UserController.logout);
-  app.get('/auth', UserController.index);
 
   app.post('/add-resource', ResourceController.index);
 }
