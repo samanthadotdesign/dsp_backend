@@ -40,26 +40,20 @@ const getDashboardData = async (db, userId) => {
     const categories = await db.Category.findAll();
     const skills = await db.Skill.findAll();
 
-    let skillsCompleted;
-    const skillIdsCompleted = [];
-
     let categoriesCompleted;
     const categoryIdsCompleted = [];
+    let skillIdsCompleted = [];
 
     let resourcesInSkillObject = {};
-
+    // If there is a userId, get completed skillIds
     if (userId != 0) {
-      // Get completed skillIds
-      skillsCompleted = await db.UserSkill.findAll({
+      const skillsCompleted = await db.UserSkill.findAll({
         where: {
-          id: userId,
+          userId,
           completed: true,
         },
       });
-
-      for (let i = 0; i < skillsCompleted.length; i += 1) {
-        skillIdsCompleted.push(skillsCompleted[i].id);
-      }
+      skillIdsCompleted = skillsCompleted.reduce((accumulator, current) => [...accumulator, current.skillId], []);
 
       // Get completed categoryIds
       // categoriesCompleted = [ { id: ... userId ... category_id: ... createdAt, updatedAt}, {} ]
@@ -89,7 +83,7 @@ const getDashboardData = async (db, userId) => {
         },
       });
       resourcesInSkillObject = organizeResourcesInSkill(defaultResources);
-      skillsCompleted = {};
+      skillIdsCompleted = [];
       categoriesCompleted = {};
     }
 
