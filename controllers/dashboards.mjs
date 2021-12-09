@@ -48,9 +48,6 @@ const getDashboardData = async (db, userId) => {
 
     let resourcesInSkillObject = {};
 
-    console.log('***** USER ID ****');
-    console.log(userId);
-
     if (userId != 0) {
       // Get completed skillIds
       skillsCompleted = await db.UserSkill.findAll({
