@@ -40,12 +40,12 @@ const getDashboardData = async (db, userId) => {
     const categories = await db.Category.findAll();
     const skills = await db.Skill.findAll();
 
-    let categoriesCompleted;
-    const categoryIdsCompleted = [];
+    // If there is a userId, get completed skillIds and categoryIds
     let skillIdsCompleted = [];
+    let categoryIdsCompleted = [];
+    let categoriesCompleted = []; // used for getting sticker data
 
     let resourcesInSkillObject = {};
-    // If there is a userId, get completed skillIds
     if (userId != 0) {
       const skillsCompleted = await db.UserSkill.findAll({
         where: {
@@ -53,9 +53,10 @@ const getDashboardData = async (db, userId) => {
           completed: true,
         },
       });
-      skillIdsCompleted = skillsCompleted.reduce((accumulator, current) => [...accumulator, current.skillId], []);
+      skillIdsCompleted = skillsCompleted.reduce(
+        (accumulator, current) => [...accumulator, current.skillId], [],
+      );
 
-      // Get completed categoryIds
       // categoriesCompleted = [ { id: ... userId ... category_id: ... createdAt, updatedAt}, {} ]
       // categoryIdsCompleted = [1,2,3]
       categoriesCompleted = await db.Category.findAll({
@@ -67,9 +68,10 @@ const getDashboardData = async (db, userId) => {
         },
       });
 
-      for (let i = 0; i < categoriesCompleted.length; i += 1) {
-        categoryIdsCompleted.push(categoriesCompleted[i].id);
-      }
+      categoryIdsCompleted = categoriesCompleted.reduce(
+        (accumulator, current) => [...accumulator, current.id], [],
+      );
+
       // When user is logged in, get resources for particular user
       const user = await db.User.findByPk(userId);
       const resourcesInSkill = await user.getResources();
@@ -84,9 +86,8 @@ const getDashboardData = async (db, userId) => {
       });
       resourcesInSkillObject = organizeResourcesInSkill(defaultResources);
       skillIdsCompleted = [];
-      categoriesCompleted = {};
+      categoryIdsCompleted = [];
     }
-
     result = {
       sections,
       categories,
@@ -94,6 +95,7 @@ const getDashboardData = async (db, userId) => {
       resources: resourcesInSkillObject,
       skillIdsCompleted,
       categoryIdsCompleted,
+      categoriesCompleted,
     };
   } catch (error) {
     console.log('Error getting dashboard data');

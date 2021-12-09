@@ -80,15 +80,21 @@ export default function initSkillController(db) {
           },
         },
       );
-      const updatedSkillIds = updatedSkills.reduce((accumulator, current) => [...accumulator, current.skillId], []);
 
+      // Send back updated skillIds to store
+      const updatedSkillIds = updatedSkills.reduce(
+        (accumulator, current) => [...accumulator, current.skillId], [],
+      );
+
+      // Use response in the store
       res.send({
-        currentCategoryId, currentCategory, categoryIsComplete, updatedSkillIds,
+        currentCategoryId,
+        currentCategory,
+        categoryIsComplete,
+        updatedSkillIds,
       });
     } catch (error) {
-      console.error('******* ERROR IN SKILL CONTROLLER ************');
-      console.log(error);
-      console.log('*******************************************');
+      console.error('******* ERROR IN SKILL CONTROLLER *********');
     }
   };
   return { index };
