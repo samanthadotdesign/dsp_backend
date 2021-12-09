@@ -17,7 +17,7 @@ export default function bindRoutes(app) {
   const ResourceController = initResourceController(db);
 
   app.get('/data/:id', DashboardController.index);
-  app.put('/skill/:skillId/:userId', SkillController.index);
+  app.post('/skill/:skillId', SkillController.index);
 
   app.post('/signup', UserController.signup);
   app.post('/login', UserController.login);

@@ -34,7 +34,6 @@ export default function initUserController(db) {
       res.cookie('userId', newUser.id);
       res.send({ newUser, status: 'OK' });
     } catch (error) {
-      console.log(error);
       console.log('**** ERROR SIGNING UP ****');
       res.sendStatus(401);
     }

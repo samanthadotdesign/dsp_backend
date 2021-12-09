@@ -76,10 +76,9 @@ const getDashboardData = async (db, userId) => {
       for (let i = 0; i < categoriesCompleted.length; i += 1) {
         categoryIdsCompleted.push(categoriesCompleted[i].id);
       }
-
+      // When user is logged in, get resources for particular user
       const user = await db.User.findByPk(userId);
       const resourcesInSkill = await user.getResources();
-
       // Create an object where the keys are the skillId for easy retrieval
       resourcesInSkillObject = organizeResourcesInSkill(resourcesInSkill);
     } else {
@@ -103,7 +102,7 @@ const getDashboardData = async (db, userId) => {
       categoryIdsCompleted,
     };
   } catch (error) {
-    console.log('Error getting dashboard data', error);
+    console.log('Error getting dashboard data');
   }
   return result;
 };

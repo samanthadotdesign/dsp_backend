@@ -1,11 +1,8 @@
 export default function initSkillController(db) {
   // Adds new skill to user, adds new category if complete
   const index = async (req, res) => {
-    // skillCompleted is a boolean describing if the skill is completed or not
-    // skillCompletedArr is array of skillIds of completed skills
-    const { skillId, skillCompleted } = req.body;
-    const { userId } = req.cookies;
-
+    const { skillId } = req.params;
+    const { userId, skillCompleted } = req.body;
     try {
       let categoryIsComplete = false;
       const currentSkill = await db.Skill.findByPk(skillId);
@@ -52,7 +49,6 @@ export default function initSkillController(db) {
 
         // If category is complete, mark category as complete
         if (skillsInCategoryCount === userSkillsInCategoryCount) {
-          console.log('running if statement');
           // add a new row in user_categories table
           // first find instance of the category
           const category = await db.Category.findByPk(currentCategoryId);
@@ -75,11 +71,25 @@ export default function initSkillController(db) {
         }
       }
 
-      res.send({ currentCategoryId, currentCategory, categoryIsComplete });
+      // Get updated skills from the database
+      const updatedSkills = await db.UserSkill.findAll(
+        {
+          where: {
+            userId,
+            completed: true,
+          },
+        },
+      );
+      const updatedSkillIds = updatedSkills.reduce((accumulator, current) => [...accumulator, current.skillId], []);
+
+      res.send({
+        currentCategoryId, currentCategory, categoryIsComplete, updatedSkillIds,
+      });
     } catch (error) {
+      console.error('******* ERROR IN SKILL CONTROLLER ************');
       console.log(error);
+      console.log('*******************************************');
     }
   };
-
   return { index };
 }
