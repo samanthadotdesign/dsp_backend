@@ -86,12 +86,22 @@ export default function initSkillController(db) {
         (accumulator, current) => [...accumulator, current.skillId], [],
       );
 
+      const categoriesCompleted = await db.Category.findAll({
+        include: {
+          model: db.User,
+          where: {
+            id: userId,
+          },
+        },
+      });
+
       // Use response in the store
       res.send({
         currentCategoryId,
         currentCategory,
         categoryIsComplete,
         updatedSkillIds,
+        categoriesCompleted,
       });
     } catch (error) {
       console.error('******* ERROR IN SKILL CONTROLLER *********');

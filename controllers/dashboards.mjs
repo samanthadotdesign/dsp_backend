@@ -42,7 +42,6 @@ const getDashboardData = async (db, userId) => {
 
     // If there is a userId, get completed skillIds and categoryIds
     let skillIdsCompleted = [];
-    let categoryIdsCompleted = [];
     let categoriesCompleted = []; // used for getting sticker data
 
     let resourcesInSkillObject = {};
@@ -58,7 +57,6 @@ const getDashboardData = async (db, userId) => {
       );
 
       // categoriesCompleted = [ { id: ... userId ... category_id: ... createdAt, updatedAt}, {} ]
-      // categoryIdsCompleted = [1,2,3]
       categoriesCompleted = await db.Category.findAll({
         include: {
           model: db.User,
@@ -67,10 +65,6 @@ const getDashboardData = async (db, userId) => {
           },
         },
       });
-
-      categoryIdsCompleted = categoriesCompleted.reduce(
-        (accumulator, current) => [...accumulator, current.id], [],
-      );
 
       // When user is logged in, get resources for particular user
       const user = await db.User.findByPk(userId);
@@ -86,7 +80,6 @@ const getDashboardData = async (db, userId) => {
       });
       resourcesInSkillObject = organizeResourcesInSkill(defaultResources);
       skillIdsCompleted = [];
-      categoryIdsCompleted = [];
     }
     result = {
       sections,
@@ -94,7 +87,6 @@ const getDashboardData = async (db, userId) => {
       skills,
       resources: resourcesInSkillObject,
       skillIdsCompleted,
-      categoryIdsCompleted,
       categoriesCompleted,
     };
   } catch (error) {
