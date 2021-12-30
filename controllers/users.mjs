@@ -4,6 +4,8 @@ export default function initUserController(db) {
   // Add a new user that signs up
   const signup = async (req, res) => {
     const { name, email, password: userPassword } = req.body;
+    console.log('***** REQUEST BODY FROM SIGNUP ****');
+    console.log(req.body);
     try {
       const hashedPassword = await bcrypt.hash(userPassword, 10);
       const newUser = await db.User.create({
@@ -35,6 +37,7 @@ export default function initUserController(db) {
       res.send({ newUser, status: 'OK' });
     } catch (error) {
       console.log('**** ERROR SIGNING UP ****');
+      console.log(error);
       res.sendStatus(401);
     }
   };
