@@ -21,7 +21,7 @@ let sequelize;
 
 if (env == 'production') {
   sequelize = new Sequelize(
-    config.use_env_variable,
+    process.env[config.use_env_variable],
     config,
   );
 } else {
