@@ -4,7 +4,7 @@
   "description": "",
   "main": "index.mjs",
   "scripts": {
-    "build": "webpack --config webpack_conf/webpack.prod.js",
+    "build": "webpack",
     "start": "node index.mjs",
     "watch": "nodemon index.mjs",
     "setup": "npx sequelize db:migrate && npx sequelize db:seed:all",
