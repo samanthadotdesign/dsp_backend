@@ -11,16 +11,26 @@ import initUserSkillModel from './userSkill.mjs';
 
 const env = process.env.NODE_ENV || 'development';
 
+console.log('**** PROCESS ENV ****', env);
+
 const config = allConfig[env];
+console.log('**** CONFIG ****', config);
 
 const db = {};
+let sequelize;
 
-const sequelize = new Sequelize(
-  config.database,
-  config.username,
-  config.password,
-  config,
-);
+if (env == 'production') {
+  sequelize = new Sequelize(
+    config.use_env_variable,
+  );
+} else {
+  sequelize = new Sequelize(
+    config.database,
+    config.username,
+    config.password,
+    config,
+  );
+}
 
 // Initializing the model here as a class
 db.User = initUserModel(sequelize, Sequelize.DataTypes);
