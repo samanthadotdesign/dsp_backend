@@ -5,7 +5,7 @@
   "main": "index.mjs",
   "scripts": {
     "build": "webpack --mode=production --node-env=production",
-    "start": "npx sequelize db:migrate && npx sequelize db:seed:all && node index.mjs",
+    "start": "node index.mjs",
     "watch": "webpack --watch",
     "setup": "npx sequelize db:migrate && npx sequelize db:seed:all",
     "reset": "npx sequelize db:migrate:undo:all && npx sequelize db:migrate",
