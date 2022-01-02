@@ -30,8 +30,8 @@ app.use(express.static('public'));
 // Set CORS headers
 app.use(cors({
   credentials: true,
-  // origin: '*', // * means you can access this service from anywhere
-  origin: FRONTEND_URL,
+  origin: '*', // * means you can access this service from anywhere
+  // origin: FRONTEND_URL,
 }));
 
 // Bind route definitions to the Express application
